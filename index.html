@@ -89,6 +89,8 @@
     var player;
     var cursors;
 
+    var junk = ['pap', 'creep', 'lmg', 'pika1', 'pika2', 'poke', 'rd', 'mario', 'obama', 'lamp', 'banana', 'turnip', 'cone', 'computer'];
+
     function preload() {
       game.stage.backgroundColor = '#ffff99';
 
@@ -96,31 +98,60 @@
       game.load.image('luke', 'images/luke.png');
       game.load.image('edzel', 'images/edzel.png');
       game.load.image('brandon', 'images/brandon.png');
+
+
+      game.load.image('pap', 'images/junk/6bca32b7cc73414.png');
+      game.load.image('creep', 'images/junk/20110203083336Creeper_2631349.jpg');
+      game.load.image('lmg', 'images/junk/lmg.png');
+      game.load.image('pika1', 'images/junk/pikachu_pixel_art_by_hiyorie-da0emtc.jpg');
+      game.load.image('pika2', 'images/junk/Pikachu-minecraft-pixel-art.jpg');
+      game.load.image('poke', 'images/junk/piq_10145_400x400.png');
+      game.load.image('rd', 'images/junk/piq_37211_400x400.png');
+      game.load.image('mario', 'images/junk/piq_45958_400x400.png');
+      game.load.image('obama', 'images/junk/piq_95620_400x400.png');
+      game.load.image('lamp', 'images/junk/piq_360280_400x400.png');
+      game.load.image('banana', 'images/junk/pixel-art-banana_1987406.jpg');
+      game.load.image('turnip', 'images/junk/pixel-art-turnip_1987413.jpg');
+      game.load.image('cone', 'images/junk/Road-Cone-icon.png');
+      game.load.image('computer', 'images/junk/SwanComputer_Assembled.png');
     }    
 
     function create() {
       game.world.setBounds(-2000, -2000, 4000, 4000);
 
       cursors = game.input.keyboard.createCursorKeys();
+
+      
+      for(var j = 0; j < 5; j++)  
+      {
+        for(var i = 0; i < junk.length; i++)
+        {
+          game.add.sprite(game.world.randomX, game.world.randomY, junk[i]);
+        }
+      }
     }
 
     function update() {
         if (cursors.up.isDown)
         {
             game.camera.y -= 4;
+            player.y -= 4;
         }
         else if (cursors.down.isDown)
         {
             game.camera.y += 4;
+            player.y += 4;
         }
 
         if (cursors.left.isDown)
         {
             game.camera.x -= 4;
+            player.x -= 4;
         }
         else if (cursors.right.isDown)
         {
             game.camera.x += 4;
+            player.x += 4;
         }
     }
 
