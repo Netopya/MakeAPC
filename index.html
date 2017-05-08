@@ -16,23 +16,32 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/2.6.2/phaser.min.js" integrity="sha256-aPXmqUl2cjA4UTrnCUqFzVamF/ZB6MvELcUK+MJ7GXg=" crossorigin="anonymous"></script>
 
   <script>
+    var selectedCharacter = "linus";
+
     $(function(){
 
       // Show the into modal
-      $("#intro_modal").modal();
+      $("#intro_modal").modal().on('hidden.bs.modal', function(e) {
+        join();
+      });
 
       var characterMap = {
-        "Linus" : "linus.png",
-        "Luke" : "luke.png",
-        "Edzel" : "edzel.png",
-        "Brandon" : "brandon.png"
+        "linus" : "linus.png",
+        "luke" : "luke.png",
+        "edzel" : "edzel.png",
+        "brandon" : "brandon.png"
       };
 
       $("#characterSelect").change(function() {
-        $("#characterPreview").attr("src", "images/" + characterMap[$(this).val()]);
+        selectedCharacter = $(this).val();
+        $("#characterPreview").attr("src", "images/" + characterMap[selectedCharacter]);
       });
 
     });
+
+    
+
+
   </script>
 </head>
 
@@ -54,10 +63,10 @@
             <div class="form-group">
               <label for="characterSelect">Character</label>
               <select id="characterSelect" class="form-control">
-                <option>Linus</option>
-                <option>Luke</option>
-                <option>Edzel</option>
-                <option>Brandon</option>
+                <option value="linus">Linus</option>
+                <option value="luke">Luke</option>
+                <option value="edzel">Edzel</option>
+                <option value="brandon">Brandon</option>
               </select>
             </div>
           </form>
@@ -66,11 +75,67 @@
           <img id="characterPreview" src="images/linus.png">
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-success">Join Game</button>
+          <button type="button" class="btn btn-success" data-dismiss="modal">Join Game</button>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 
+  <div id="phaser-canvas">
+  </div>
+
+  <script>
+    var game = new Phaser.Game(document.body.clientWidth, 600, Phaser.CANVAS, 'phaser-canvas', { preload: preload, create: create, update: update, render : render });
+    var player;
+    var cursors;
+
+    function preload() {
+      game.stage.backgroundColor = '#ffff99';
+
+      game.load.image('linus', 'images/linus.png');
+      game.load.image('luke', 'images/luke.png');
+      game.load.image('edzel', 'images/edzel.png');
+      game.load.image('brandon', 'images/brandon.png');
+    }    
+
+    function create() {
+      game.world.setBounds(-2000, -2000, 4000, 4000);
+
+      cursors = game.input.keyboard.createCursorKeys();
+    }
+
+    function update() {
+        if (cursors.up.isDown)
+        {
+            game.camera.y -= 4;
+        }
+        else if (cursors.down.isDown)
+        {
+            game.camera.y += 4;
+        }
+
+        if (cursors.left.isDown)
+        {
+            game.camera.x -= 4;
+        }
+        else if (cursors.right.isDown)
+        {
+            game.camera.x += 4;
+        }
+    }
+
+    function render() {
+      game.debug.cameraInfo(game.camera, 32, 32);
+    }
+
+    function join() {
+      player = game.add.sprite(game.width / 2, game.height / 2, selectedCharacter);
+
+      /*for(var i = -2000; i < 2000; i+= 200)
+      {
+        game.add.sprite(i, i, selectedCharacter);
+      }*/
+    }
+  </script>
 </body>
 </html>
