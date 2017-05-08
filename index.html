@@ -14,9 +14,46 @@
 
   <!-- Phaser.io -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/2.6.2/phaser.min.js" integrity="sha256-aPXmqUl2cjA4UTrnCUqFzVamF/ZB6MvELcUK+MJ7GXg=" crossorigin="anonymous"></script>
+
+  <script>
+    $(function(){
+      $("#intro_modal").modal();
+    });
+  </script>
 </head>
 
 <body>
   <h1>Hello World</h1>
+
+  <div id="intro_modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1>Welcome to Make A PC!</h1>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="usernameInput">Username</label>
+              <input type="text" class="form-control" id="usernameInput" placeholder="Enter a username">
+            </div>
+            <div class="form-group">
+              <label for="characterSelect">Character</label>
+              <select id="characterSelect" class="form-control">
+                <option>Linus</option>
+                <option>Luke</option>
+                <option>Edzel</option>
+                <option>Brandon</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success">Join Game</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
 </body>
 </html>
