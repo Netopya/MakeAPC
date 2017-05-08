@@ -1,5 +1,6 @@
 {
   "name": "makeapc",
+  "start": "node index.js",
   "version": "0.0.1",
   "description": "Make A PC Node.JS Server",
   "dependencies": {
