@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Make A PC Node.JS Server",
   "dependencies": {
-      "express": "^4.13.0"
+      "express": "^4.13.0",
+      "socket.io": "^1.7.3"
   }
 }
