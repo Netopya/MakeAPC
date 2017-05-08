@@ -17,7 +17,21 @@
 
   <script>
     $(function(){
+
+      // Show the into modal
       $("#intro_modal").modal();
+
+      var characterMap = {
+        "Linus" : "linus.png",
+        "Luke" : "luke.png",
+        "Edzel" : "edzel.png",
+        "Brandon" : "brandon.png"
+      };
+
+      $("#characterSelect").change(function() {
+        $("#characterPreview").attr("src", "images/" + characterMap[$(this).val()]);
+      });
+
     });
   </script>
 </head>
@@ -47,6 +61,9 @@
               </select>
             </div>
           </form>
+          <span>Preview:</span>
+          <br/>
+          <img id="characterPreview" src="images/linus.png">
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-success">Join Game</button>
