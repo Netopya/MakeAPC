@@ -194,10 +194,12 @@
       player = game.add.group();
       player.x = game.width / 2;
       player.y = game.height / 2;
-      player.create(0, 0, selectedCharacter);
+      var sprite = game.add.sprite(0, 0, selectedCharacter);
+      player.add(sprite);
 
 
-      var text = game.add.text(0, -10, username, style);
+      var text = game.add.text(sprite.width / 2, -10, data.username, style);
+      text.anchor.setTo(0.5);
       player.add(text);
 
       socket = io();
@@ -217,9 +219,11 @@
         var userplayer = game.add.group();
         userplayer.x = data.x;
         userplayer.y = data.y;
-        userplayer.create(0,0, data.character);
+        var sprite = game.add.sprite(0, 0, data.character);
+        userplayer.add(sprite);
 
-        var text = game.add.text(0, -10, data.username, style);
+        var text = game.add.text(sprite.width / 2, -10, data.username, style);
+        text.anchor.setTo(0.5);
         userplayer.add(text);
 
         users[data.id] = {player: userplayer, socket: data};
@@ -248,7 +252,7 @@
     var socket;
     var username;
     var users = {};
-    var style = { font: "65px Arial", fill: "#ff0044", align: "center" };
+    var style = { font: "14px Arial", fill: "#ff0044", align: "center" };
 
   </script>
 </body>
