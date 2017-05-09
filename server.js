@@ -11,3 +11,20 @@ app.get('/', function(req, res){
 http.listen(8080, function(){
   console.log('listening on *:8080');
 });
+
+//var users = [];
+
+io.on('connection', function (socket) {
+
+  socket.on('join', function(data){
+    //var user = new Object();
+    socket.username = data.username;
+    socket.character = data.character;
+    socket.broadcast.emit('user joined', {
+      id: socket.id,
+      username: socket.username,
+      character: socket.character
+    });
+  });
+
+});
