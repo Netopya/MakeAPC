@@ -190,23 +190,29 @@
       game.debug.cameraInfo(game.camera, 32, 32);
     }
 
-    function join() {
-      player = game.add.group();
-      player.x = game.width / 2;
-      player.y = game.height / 2;
-      var sprite = game.add.sprite(0, 0, selectedCharacter);
-      player.add(sprite);
+    function createPlayer(name, character, x, y)
+    {
+      var userplayer = game.add.group();
+      userplayer.x = x;
+      userplayer.y = y;
+      var sprite = game.add.sprite(0, 0, character);
+      userplayer.add(sprite);
 
-
-      var text = game.add.text(sprite.width / 2, -10, username, style);
+      var text = game.add.text(sprite.width / 2, -10, name, style);
       text.anchor.setTo(0.5);
-      player.add(text);
+      userplayer.add(text);
+
+      return userplayer;
+    }
+
+    function join() {
+      player = createPlayer(username, selectedCharacter, game.width / 2, game.height / 2);
 
       socket = io();
 
       $.getJSON("/users/", function(data){
         $.each(data, function(index, value){
-          var userplayer = game.add.sprite(value.x, value.y, value.character);
+          var userplayer = createPlayer(value.username, value.character, value.x, value.y);
           users[value.id] = {player: userplayer, socket: value};
 
           console.log(value.username + ' is in the game!');
@@ -216,15 +222,7 @@
       socket.emit('join', {username: username, character: selectedCharacter, x: player.x, y: player.y});
 
       socket.on('user joined', function(data){
-        var userplayer = game.add.group();
-        userplayer.x = data.x;
-        userplayer.y = data.y;
-        var sprite = game.add.sprite(0, 0, data.character);
-        userplayer.add(sprite);
-
-        var text = game.add.text(sprite.width / 2, -10, data.username, style);
-        text.anchor.setTo(0.5);
-        userplayer.add(text);
+        var userplayer = createPlayer(data.username, data.character, data.x, data.y);
 
         users[data.id] = {player: userplayer, socket: data};
 
