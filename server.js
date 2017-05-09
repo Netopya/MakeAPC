@@ -9,23 +9,8 @@ app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
+// Get a list of connected users
 app.get('/users/', function(req, res){
-
-  /*var sockets = Object.values(io.sockets.sockets);
-  var users = [];
-
-  for(var i = 0; i < sockets.length; i++)
-  {
-    users.push({
-      id: socket[i].id,
-      username: sockets[i].username, 
-      character: socket[i].character, 
-      x: socket[i].x, 
-      y: socket[i].y
-    });
-  }
-
-  */
   var usersockets = io.sockets.sockets;
 
   res.json(Object.keys(usersockets).map(function(key){
@@ -43,12 +28,10 @@ http.listen(8080, function(){
   console.log('listening on *:8080');
 });
 
-//var users = [];
 
 io.on('connection', function (socket) {
 
   socket.on('join', function(data){
-    //var user = new Object();
     socket.username = data.username;
     socket.character = data.character;
     socket.x = data.x;
@@ -75,4 +58,9 @@ io.on('connection', function (socket) {
     });
   });
 
+  socket.on('disconnect', function () {
+    socket.broadcast.emit('user left', {
+        id: socket.id
+      });
+  });
 });

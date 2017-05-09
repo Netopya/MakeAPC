@@ -200,7 +200,7 @@
           var userplayer = game.add.sprite(value.x, value.y, value.character);
           users[value.id] = {player: userplayer, socket: value};
 
-          console.log(data.username + ' is in the game!');
+          console.log(value.username + ' is in the game!');
         });
       });
 
@@ -220,10 +220,11 @@
 
       });
 
-      /*for(var i = -2000; i < 2000; i+= 200)
-      {
-        game.add.sprite(i, i, selectedCharacter);
-      }*/
+      socket.on('user left', function(data){
+        var user = users[data.id];
+        user.player.destory();
+        delete users[data.id];
+      });
     }
 
     function cleanInput (input) {
