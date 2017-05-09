@@ -10,7 +10,7 @@ app.get('/', function(req, res){
 });
 
 app.get('/users/', function(req, res){
-  res.json(io.sockets.sockets);
+  res.json(Object.keys(io.sockets.sockets));
 });
 
 http.listen(8080, function(){
