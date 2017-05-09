@@ -191,7 +191,14 @@
     }
 
     function join() {
-      player = game.add.sprite(game.width / 2, game.height / 2, selectedCharacter);
+      player = game.add.group();
+      player.x = game.width / 2;
+      player.y = game.height / 2;
+      player.create(0, 0, selectedCharacter);
+
+
+      var text = game.add.text(0, -10, username, style);
+      player.add(text);
 
       socket = io();
 
@@ -207,7 +214,14 @@
       socket.emit('join', {username: username, character: selectedCharacter, x: player.x, y: player.y});
 
       socket.on('user joined', function(data){
-        var userplayer = game.add.sprite(data.x, data.y, data.character);
+        var userplayer = game.add.group();
+        userplayer.x = data.x;
+        userplayer.y = data.y;
+        userplayer.create(0,0, data.character);
+
+        var text = game.add.text(0, -10, data.username, style);
+        userplayer.add(text);
+
         users[data.id] = {player: userplayer, socket: data};
 
         console.log(data.username + ' joined the game!');
@@ -234,7 +248,7 @@
     var socket;
     var username;
     var users = {};
-    
+    var style = { font: "65px Arial", fill: "#ff0044", align: "center" };
 
   </script>
 </body>
