@@ -25,15 +25,16 @@ app.get('/users/', function(req, res){
     });
   }
 
-  var sockets = io.sockets.sockets;*/
+  */
+  var usersockets = io.sockets.sockets;
 
-  res.json(Object.keys(io.sockets.sockets).map(function(key){
+  res.json(Object.keys(usersockets).map(function(key){
     return {
-      id: socket[key].id,
-      username: sockets[key].username, 
-      character: socket[key].character, 
-      x: socket[key].x, 
-      y: socket[key].y
+      id: usersockets[key].id,
+      username: usersockets[key].username, 
+      character: usersockets[key].character, 
+      x: usersockets[key].x, 
+      y: usersockets[key].y
     };
   }));
 });
