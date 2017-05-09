@@ -190,7 +190,7 @@
 
       socket = io();
 
-      socket.emit('join', {username: username, characer: selectedCharacter});
+      socket.emit('join', {username: username, character: selectedCharacter});
 
       socket.on('user joined', function(data){
         game.add.sprite(game.width / 2, game.height / 2, data.character);
