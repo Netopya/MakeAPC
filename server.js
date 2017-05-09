@@ -11,7 +11,7 @@ app.get('/', function(req, res){
 
 app.get('/users/', function(req, res){
 
-  var sockets = Object.values(io.sockets.sockets);
+  /*var sockets = Object.values(io.sockets.sockets);
   var users = [];
 
   for(var i = 0; i < sockets.length; i++)
@@ -25,7 +25,17 @@ app.get('/users/', function(req, res){
     });
   }
 
-  res.json(users);
+  var sockets = io.sockets.sockets;*/
+
+  res.json(Object.keys(io.sockets.sockets).map(function(key){
+    return {
+      id: socket[key].id,
+      username: sockets[key].username, 
+      character: socket[key].character, 
+      x: socket[key].x, 
+      y: socket[key].y
+    };
+  }));
 });
 
 http.listen(8080, function(){
