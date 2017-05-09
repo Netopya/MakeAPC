@@ -179,6 +179,11 @@
             game.camera.x += 4;
             player.x += player.worldPosition.x < game.width / 2 ? 8 : 4;
         }
+
+        if(cursors.up.isDown || cursors.down.isDown || cursors.left.isDown || cursors.right.isDown)
+        {
+          socket.emit('move', {x: player.x, y: player.y});
+        }
     }
 
     function render() {
@@ -193,9 +198,19 @@
       socket.emit('join', {username: username, character: selectedCharacter});
 
       socket.on('user joined', function(data){
-        game.add.sprite(game.width / 2, game.height / 2, data.character);
+        var userplayer = game.add.sprite(game.width / 2, game.height / 2, data.character);
+        users[data.id] = {player: userplayer, socket: data};
+
         console.log(data.username + ' joined the game!');
       });
+
+      socket.on('user moved', function(data){
+        var userplayer = users[data.id];
+        userplayer.player.x = data.x;
+        userplayer.player.y = data.y;
+        
+      });
+
       /*for(var i = -2000; i < 2000; i+= 200)
       {
         game.add.sprite(i, i, selectedCharacter);
@@ -208,7 +223,7 @@
 
     var socket;
     var username;
-
+    var users = {};
     
 
   </script>
