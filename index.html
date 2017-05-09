@@ -222,7 +222,7 @@
 
       socket.on('user left', function(data){
         var user = users[data.id];
-        user.player.destory();
+        user.player.destroy();
         delete users[data.id];
       });
     }
