@@ -51,10 +51,15 @@ io.on('connection', function (socket) {
     //var user = new Object();
     socket.username = data.username;
     socket.character = data.character;
+    socket.x = data.x;
+    socket.y = data.y;
+
     socket.broadcast.emit('user joined', {
       id: socket.id,
       username: socket.username,
-      character: socket.character
+      character: socket.character,
+      x: socket.x,
+      y: socket.y
     });
   });
 
