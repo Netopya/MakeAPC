@@ -10,7 +10,22 @@ app.get('/', function(req, res){
 });
 
 app.get('/users/', function(req, res){
-  res.json(Object.keys(io.sockets.sockets));
+
+  var sockets = Object.values(io.sockets.sockets);
+  var users = [];
+
+  for(var i = 0; i < sockets.length; i++)
+  {
+    users.push({
+      id: socket[i].id,
+      username: sockets[i].username, 
+      character: socket[i].character, 
+      x: socket[i].x, 
+      y: socket[i].y
+    });
+  }
+
+  res.json(users);
 });
 
 http.listen(8080, function(){
