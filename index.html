@@ -65,7 +65,7 @@
       $("#chat-send").click(function(e) {
         var chat = cleanInput($("#chat-box").val().substring(0, 100));
         socket.emit('chat', chat);
-        player.chat.setText(chat);
+        setPlayerMessege(player, chat);
         $("#chat-box").val("");
       });
     });
@@ -218,6 +218,18 @@
       game.debug.cameraInfo(game.camera, 32, 32);
     }
 
+    function setPlayerMessege(player, messege)
+    {
+      player.chat.setText(messege);
+      
+      if(player.chattimer)
+        clearTimeout(player.chattimer);
+
+      player.chattimer = setTimeout(function() {
+        player.chat.setText("");
+      }, 5000);
+    }
+
     function createPlayer(name, character, x, y)
     {
       var userplayer = game.add.group();
@@ -226,7 +238,7 @@
       var sprite = game.add.sprite(0, 0, character);
       userplayer.add(sprite);
 
-      var text = game.add.text(sprite.width / 2, sprite.height + 10, name, style);
+      var text = game.add.text(sprite.width / 2, sprite.height + 11, name, style);
       text.anchor.setTo(0.5);
       userplayer.add(text);
 
@@ -253,7 +265,7 @@
         });
       });
 
-      socket.emit('join', {username: username, character: selectedCharacter, x: player.x, y: player.y});
+      socket.emit('join', {username: username, character: selectedCharacter, x: player.player.x, y: player.player.y});
 
       socket.on('user joined', function(data){
         var userplayer = createPlayer(data.username, data.character, data.x, data.y);
@@ -277,7 +289,7 @@
       });
 
       socket.on('user messege', function(data){
-        users[data.id].chat.setText(data.chat);
+        setPlayerMessege(users[data.id], data.messege);
       });
     }
 
