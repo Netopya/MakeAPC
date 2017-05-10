@@ -181,6 +181,7 @@
 
     var player;
     var cursors;
+    var lastTouchedComponent;
 
     var junk = ['pap', 'creep', 'lmg', 'pika1', 'pika2', 'poke', 'rd', 'mario', 'obama', 'lamp', 'banana', 'turnip', 'cone', 'computer'];
 
@@ -268,6 +269,35 @@
         {
           socket.emit('move', {x: localplayer.x, y: localplayer.y});
         }
+
+        var candidateComponents = Object.values(components).map(function(component){
+          return {
+            component: component, 
+            distance: Phaser.Math.distanceSq(localplayer.x, localplayer.y, component.component.x + component.sprite.width / 2, component.component.y + component.sprite.height / 2)
+          };
+        }).reduce(function(last, current){
+          return last < current ? last : current;
+        });
+
+        if(candidateComponents.distance > 100)
+          candidateComponents = undefined;
+
+          
+        if(lastTouchedComponent && lastTouchedComponent != candidateComponents.component)
+        {
+          lastTouchedComponent.text.visible = false;
+          lastTouchedComponent = undefined;
+        }
+
+        if(candidateComponents)
+        {
+          candidateComponents.component.text.visible = true; 
+          lastTouchedComponent = candidateComponents.component;
+        }
+        
+        $.each(components, function(key, value){
+          Phaser.Math.distanceSq(localplayer.x, localplayer.y, value.centerX, value.centerY);
+        });
     }
 
     function render() {
@@ -319,8 +349,24 @@
       text.strokeThickness = 2;
     }
 
-    function join() {
-      player = createPlayer(username, selectedCharacter, game.width / 2, game.height / 2, true);
+    function spawnComponent(id, x, y, component)
+    {
+      var componentGroup = game.add.group();
+      componentGroup.x = x;
+      componentGroup.y = y;
+      var sprite = game.add.sprite(0, 0, component);
+      componentGroup.add(sprite);
+
+      var text = game.add.text(sprite.width / 2, -10, "Press e to pickup");
+      formatText(text, true);
+      text.anchor.setTo(0.5);
+      text.visible = false;
+      componentGroup.add(text);
+
+      components[id] = {component: componentGroup, text: text, sprite: sprite};
+    }
+
+    function join() {      
 
       socket = io();
 
@@ -336,9 +382,11 @@
 
       $.getJSON("/components/", function(data){
         $.each(data, function(index, value){
-          game.add.sprite(value.x, value.y, value.component);
+          spawnComponent(value.id, value.x, value.y, value.component);
         });
       });
+
+      player = createPlayer(username, selectedCharacter, game.width / 2, game.height / 2, true);
 
       socket.emit('join', {username: username, character: selectedCharacter, x: player.player.x, y: player.player.y});
 
@@ -382,6 +430,7 @@
     var socket;
     var username;
     var users = {};
+    var components = {};
     var style = { font: "14px Arial", fill: "#ff0044", align: "center" };
 
   </script>
