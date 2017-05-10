@@ -279,11 +279,11 @@
           return last.distance < current.distance ? last : current;
         }, {distance: Infinity});
 
-        if(candidateComponents.distance > 100)
+        if(candidateComponents.distance > 300)
           candidateComponents = undefined;
 
 
-        if(lastTouchedComponent && lastTouchedComponent != candidateComponents.component)
+        if(lastTouchedComponent && (!candidateComponents || lastTouchedComponent != candidateComponents.component))
         {
           lastTouchedComponent.text.visible = false;
           lastTouchedComponent = undefined;
