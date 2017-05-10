@@ -170,7 +170,7 @@
         //  'active' means all requested fonts have finished loading
         //  We set a 1 second delay before calling 'createText'.
         //  For some reason if we don't the browser cannot render the text the first time it's created.
-        active: function() { game.time.events.add(Phaser.Timer.SECOND, createText, this); },
+        //active: function() { game.time.events.add(Phaser.Timer.SECOND, createText, this); },
 
         //  The Google Fonts we want to load (specify as many as you like in the array)
         google: {
@@ -278,7 +278,7 @@
       }, 5000);
     }
 
-    function createPlayer(name, character, x, y)
+    function createPlayer(name, character, x, y, local)
     {
       var userplayer = game.add.group();
       userplayer.x = x;
@@ -287,13 +287,13 @@
       userplayer.add(sprite);
 
       var text = game.add.text(sprite.width / 2, sprite.height + 11, name);
-      formatText(text);
+      formatText(text, local);
 
       text.anchor.setTo(0.5);
       userplayer.add(text);
 
       var chat = game.add.text(sprite.width / 2, -10, "");
-      formatText(chat);
+      formatText(chat, local);
       chat.anchor.setTo(0.5);
       userplayer.add(chat);
 
@@ -301,22 +301,24 @@
       return {player: userplayer, chat: chat};
     }
 
-    function formatText(text)
+    function formatText(text, local)
     {
       text.align = 'center';
       text.font = 'Ubuntu';
       text.fontSize = 16;
-      text.fill = '#ff0000';
+      text.fill = local ? '#0000ff' : '#ff0000';
+      text.stroke = '#000000'
+      text.strokeThickness = 2;
     }
 
     function join() {
-      player = createPlayer(username, selectedCharacter, game.width / 2, game.height / 2);
+      player = createPlayer(username, selectedCharacter, game.width / 2, game.height / 2, true);
 
       socket = io();
 
       $.getJSON("/users/", function(data){
         $.each(data, function(index, value){
-          var userplayer = createPlayer(value.username, value.character, value.x, value.y);
+          var userplayer = createPlayer(value.username, value.character, value.x, value.y, false);
           userplayer.socket = value;
           users[value.id] = userplayer;
 
@@ -327,7 +329,7 @@
       socket.emit('join', {username: username, character: selectedCharacter, x: player.player.x, y: player.player.y});
 
       socket.on('user joined', function(data){
-        var userplayer = createPlayer(data.username, data.character, data.x, data.y);
+        var userplayer = createPlayer(data.username, data.character, data.x, data.y, false);
         userplayer.socket = data;
         users[data.id] = userplayer;
 
