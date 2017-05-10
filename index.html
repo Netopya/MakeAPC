@@ -277,7 +277,7 @@
           };
         }).reduce(function(last, current){
           return last.distance < current.distance ? last : current;
-        }, {distance: Inifinity});
+        }, {distance: Infinity});
 
         if(candidateComponents.distance > 100)
           candidateComponents = undefined;
