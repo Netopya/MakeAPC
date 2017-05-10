@@ -279,7 +279,7 @@
           return last.distance < current.distance ? last : current;
         }, {distance: Infinity});
 
-        if(candidateComponents.distance > 5000)
+        if(candidateComponents.distance > 15000)
           candidateComponents = undefined;
 
 
@@ -421,6 +421,9 @@
       });
 
       chatenabled = true;
+      
+      player.player.z = Infinity;
+      game.world.sort()
     }
 
     function cleanInput (input) {
