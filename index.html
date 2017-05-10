@@ -19,6 +19,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.slim.js" integrity="sha256-xgFhgi3lzveFZBzfkbog/oj1SIOjyveAZKnUVwr35Q8=" crossorigin="anonymous"></script>
 
   <script>
+
+    var chatenabled = false;
+
     (function($){
       $.isBlank = function(obj){
         return(!obj || $.trim(obj) === "");
@@ -63,14 +66,38 @@
       });
 
       $("#chat-send").click(function(e) {
-        var chat = cleanInput($("#chat-box").val().substring(0, 100));
-        socket.emit('chat', chat);
-        setPlayerMessege(player, chat);
-        $("#chat-box").val("");
+        sendChatMessege();
+      });
+
+      $(document).keypress(function(e) {
+          if(e.which == 13) {
+              if(chatenabled)
+              {
+                if($("#chat-box").is(":focus"))
+                {
+                  sendChatMessege();
+                  $("#chat-box").blur();
+                }
+                else
+                {
+                  $("#chat-box").focus();
+                }
+              }
+          }
       });
     });
 
-    
+    function sendChatMessege()
+    {
+      var chat = cleanInput($("#chat-box").val().substring(0, 100));
+
+      if($.isBlank(chat))
+        return;
+
+      socket.emit('chat', chat);
+      setPlayerMessege(player, chat);
+      $("#chat-box").val("");
+    }
 
 
   </script>
@@ -121,7 +148,7 @@
         <div class="col-sm-12">
           <div id="chat-container" style="position:absolute;bottom:6px;">
             <div class="input-group">
-              <input type="text" class="form-control" id="chat-box" placeholder="Messege">
+              <input type="text" class="form-control" id="chat-box" placeholder="Press Enter to Chat">
               <span class="input-group-btn">
                 <button id="chat-send" class="btn btn-primary" type="button">Send</button>
               </span>
@@ -277,6 +304,11 @@
 
       socket.on('user moved', function(data){
         var userplayer = users[data.id];
+
+        // If the user could not be found, return for now
+        if(!userplayer)
+          return;
+
         userplayer.player.x = data.x;
         userplayer.player.y = data.y;
 
@@ -291,6 +323,8 @@
       socket.on('user messege', function(data){
         setPlayerMessege(users[data.id], data.messege);
       });
+
+      chatenabled = true;
     }
 
     function cleanInput (input) {
