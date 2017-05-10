@@ -81,7 +81,7 @@
         </div>
         <div class="modal-body">
           <form>
-            <div id="usernameGroup" class="form-group">
+            <div id="usernameGroup" class="form-group" onsubmit="return false;">
               <label for="usernameInput">Username</label>
               <input type="text" class="form-control" id="usernameInput" placeholder="Enter a username">
               <span id="usernameHelp" class="help-block"></span>
@@ -107,7 +107,21 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 
-  <div id="phaser-canvas">
+  <div id="game-container">
+    <div id="phaser-canvas">
+    </div>
+    <div id="chat-container" style="position:absolute;bottom:6px;">
+        <div class="row">
+          <div class="col-sm-10 col-sm-offset-1">
+            <div class="input-group">
+              <input type="text" class="form-control" id="chat-box" placeholder="Messege">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button">Send</button>
+              </span>
+            </div>
+          </div>
+        </div>
+    </div>
   </div>
 
   <script>
@@ -198,11 +212,16 @@
       var sprite = game.add.sprite(0, 0, character);
       userplayer.add(sprite);
 
-      var text = game.add.text(sprite.width / 2, -10, name, style);
+      var text = game.add.text(sprite.width / 2, sprite.height + 2, name, style);
       text.anchor.setTo(0.5);
       userplayer.add(text);
 
-      return userplayer;
+      var chat = game.add.text(sprite.width / 2, -10, "", style);
+      chat.anchor.setTo(0.5);
+      userplayer.add(text);
+
+
+      return {player: userplayer, chat: chat};
     }
 
     function join() {
@@ -213,7 +232,8 @@
       $.getJSON("/users/", function(data){
         $.each(data, function(index, value){
           var userplayer = createPlayer(value.username, value.character, value.x, value.y);
-          users[value.id] = {player: userplayer, socket: value};
+          userplayer.socket = value;
+          users[value.id] = userplayer;
 
           console.log(value.username + ' is in the game!');
         });
@@ -223,8 +243,8 @@
 
       socket.on('user joined', function(data){
         var userplayer = createPlayer(data.username, data.character, data.x, data.y);
-
-        users[data.id] = {player: userplayer, socket: data};
+        userplayer.socket = data;
+        users[data.id] = userplayer;
 
         console.log(data.username + ' joined the game!');
       });
