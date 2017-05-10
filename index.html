@@ -208,6 +208,14 @@
       game.load.image('cone', 'images/junk/Road-Cone-icon.png');
       game.load.image('computer', 'images/junk/SwanComputer_Assembled.png');
 
+      game.load.image('case', 'images/components/case.jpg');
+      game.load.image('cpu', 'images/components/cpu.jpg');
+      game.load.image('gpu', 'images/components/gpu.jpg');
+      game.load.image('mother', 'images/components/mother.jpg');
+      game.load.image('psu', 'images/components/psu.jpg');
+      game.load.image('ram', 'images/components/ram.jpg');
+      game.load.image('ssd', 'images/components/ssd.jpg');
+
       // Load the Google WebFont Loader script
       game.load.script('webfont', 'https://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
     }    
@@ -323,6 +331,12 @@
           users[value.id] = userplayer;
 
           console.log(value.username + ' is in the game!');
+        });
+      });
+
+      $.getJSON("/components/", function(data){
+        $.each(data, function(index, value){
+          game.add.sprite(value.x, value.y, value.component);
         });
       });
 

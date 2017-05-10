@@ -3,6 +3,28 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+var components = ['case', 'cpu', 'gpu', 'mother', 'psu', 'ram', 'ssd'];
+var spawnedComponents = [];
+var componentNum = 0;
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+for(var j = 0; j < 5; j++)
+{
+  for(var i = 0; i < components.length; i++)
+  {
+    spawnedComponents.push({
+      id: componentNum++, 
+      component: components[i], 
+      x: getRandomInt(-2000, 2000),
+      y: getRandomInt(-2000, 2000)
+    });
+  }
+}
+
+
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function(req, res){
@@ -22,6 +44,10 @@ app.get('/users/', function(req, res){
       y: usersockets[key].y
     };
   }));
+});
+
+app.get('/components/', function(req, res){
+  res.json(spawnedComponents);
 });
 
 http.listen(8080, function(){
