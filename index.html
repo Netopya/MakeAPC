@@ -370,7 +370,7 @@
 
       socket = io();
 
-      $.getJSON("/users/", function(data){
+      var users = $.getJSON("/users/", function(data){
         $.each(data, function(index, value){
           var userplayer = createPlayer(value.username, value.character, value.x, value.y, false);
           userplayer.socket = value;
@@ -380,12 +380,20 @@
         });
       });
 
-      $.getJSON("/components/", function(data){
+      var components = $.getJSON("/components/", function(data){
         $.each(data, function(index, value){
           spawnComponent(value.id, value.x, value.y, value.component);
         });
       });
 
+      $.when(users, components).done(function(v1, v2){
+        joinLoaded();
+      });
+      
+    }
+
+    function joinLoaded()
+    {
       player = createPlayer(username, selectedCharacter, game.width / 2, game.height / 2, true);
 
       socket.emit('join', {username: username, character: selectedCharacter, x: player.player.x, y: player.player.y});
@@ -421,9 +429,6 @@
       });
 
       chatenabled = true;
-      
-      player.player.z = Infinity;
-      game.world.sort()
     }
 
     function cleanInput (input) {
