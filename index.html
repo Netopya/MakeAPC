@@ -276,13 +276,13 @@
             distance: Phaser.Math.distanceSq(localplayer.x, localplayer.y, component.component.x + component.sprite.width / 2, component.component.y + component.sprite.height / 2)
           };
         }).reduce(function(last, current){
-          return last < current ? last : current;
-        });
+          return last.distance < current.distance ? last : current;
+        }, {distance: Inifinity});
 
         if(candidateComponents.distance > 100)
           candidateComponents = undefined;
 
-          
+
         if(lastTouchedComponent && lastTouchedComponent != candidateComponents.component)
         {
           lastTouchedComponent.text.visible = false;
