@@ -62,6 +62,12 @@
         $("#characterPreview").attr("src", "images/" + characterMap[selectedCharacter]);
       });
 
+      $("#chat-send").click(function(e) {
+        var chat = cleanInput($("#chat-box").val().substring(0, 100));
+        socket.emit('chat', chat);
+        player.chat.setText(chat);
+        $("#chat-box").val("");
+      });
     });
 
     
@@ -80,8 +86,8 @@
           <h1>Welcome to Make A PC!</h1>
         </div>
         <div class="modal-body">
-          <form>
-            <div id="usernameGroup" class="form-group" onsubmit="return false;">
+          <form onsubmit="return false;">
+            <div id="usernameGroup" class="form-group">
               <label for="usernameInput">Username</label>
               <input type="text" class="form-control" id="usernameInput" placeholder="Enter a username">
               <span id="usernameHelp" class="help-block"></span>
@@ -117,7 +123,7 @@
             <div class="input-group">
               <input type="text" class="form-control" id="chat-box" placeholder="Messege">
               <span class="input-group-btn">
-                <button class="btn btn-primary" type="button">Send</button>
+                <button id="chat-send" class="btn btn-primary" type="button">Send</button>
               </span>
             </div>
           </div>
@@ -224,7 +230,7 @@
       text.anchor.setTo(0.5);
       userplayer.add(text);
 
-      var chat = game.add.text(sprite.width / 2, -10, "", style);
+      var chat = game.add.text(sprite.width / 2, 2, "", style);
       chat.anchor.setTo(0.5);
       userplayer.add(text);
 
@@ -268,6 +274,10 @@
         var user = users[data.id];
         user.player.destroy();
         delete users[data.id];
+      });
+
+      socket.on('user messege', function(data){
+        users[data.id].chat.setText(data.chat);
       });
     }
 

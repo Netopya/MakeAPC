@@ -63,4 +63,12 @@ io.on('connection', function (socket) {
         id: socket.id
       });
   });
+
+  socket.on('chat', function(data) {
+    var chat = data.substring(0, 100);
+    socket.broadcast.emit('user messege', {
+      id: socket.id,
+      messege: chat
+    });
+  });
 });
