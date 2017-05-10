@@ -226,13 +226,13 @@
       var sprite = game.add.sprite(0, 0, character);
       userplayer.add(sprite);
 
-      var text = game.add.text(sprite.width / 2, sprite.height + 2, name, style);
+      var text = game.add.text(sprite.width / 2, sprite.height + 10, name, style);
       text.anchor.setTo(0.5);
       userplayer.add(text);
 
-      var chat = game.add.text(sprite.width / 2, 2, "", style);
+      var chat = game.add.text(sprite.width / 2, -10, "", style);
       chat.anchor.setTo(0.5);
-      userplayer.add(text);
+      userplayer.add(chat);
 
 
       return {player: userplayer, chat: chat};
