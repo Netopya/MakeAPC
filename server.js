@@ -106,13 +106,13 @@ io.on('connection', function (socket) {
     {
       delete spawnedComponents[data];
       socket.emit('pickup accept', data);
-      socket.broadcast.emit('component picked up', data);
+      socket.broadcast.emit('component picked up', {id: data, player: socket.id});
     }
   });
 
   socket.on('drop', function(data){
     spawnedComponents[data.id] = data;
 
-    socket.broadcast.emit('spawn component', data);
+    socket.broadcast.emit('component dropped', {component: data, player: socket.id});
   });
 });

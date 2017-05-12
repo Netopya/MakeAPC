@@ -338,7 +338,7 @@
       text.anchor.setTo(0.5);
       userplayer.add(text);
 
-      var status = game.add.text(sprite.width / 2, sprite.height + 21, "");
+      var status = game.add.text(sprite.width / 2, sprite.height + 30, "");
       formatText(status, local);
       status.anchor.setTo(0.5);
       userplayer.add(status);
@@ -444,18 +444,20 @@
       socket.on('pickup accept', function(data) {
         lastTouchedComponent = undefined;
         player.holding = components[data];
-        player.status.setText("Holding " + components[data].name);
+        player.status.setText("Holding " + components[data].name + " (e to drop)");
         components[data].component.destroy();
         delete components[data];
       });
 
       socket.on('component picked up', function(data) {
-        components[data].component.destroy();
-        delete components[data];
+        users[data.player].status.setText("Holding " + components[data.id].name);
+        components[data.id].component.destroy();
+        delete components[data.id];
       });
 
-      socket.on('spawn component', function(data){
-        spawnComponent(data.id, data.x, data.y, data.component);
+      socket.on('component dropped', function(data){
+        users[data.player].status.setText("");
+        spawnComponent(data.component.id, data.component.x, data.component.y, data.component.component);
       });
 
       chatenabled = true;
