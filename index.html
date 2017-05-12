@@ -264,7 +264,11 @@
         }
       }
 
-      workbench = game.add.sprite(0,0, 'workbench');
+      var workbenchGroup = game.add.group();
+      var workbenchSprite = game.add.sprite(game.width / 2, game.height / 2, 'workbench');
+      workbenchGroup.add(workbenchSprite);
+
+      workbench = {workbench: workbenchGroup, sprite: workbenchSprite};
     }
 
     function update() {
@@ -327,8 +331,25 @@
             candidateComponents.component.text.visible = true; 
             lastTouchedComponent = candidateComponents.component;
           }
+
+          workbench.touching = false;
+          workbench.text.visible = false;
         }
-        
+        else
+        {
+          var distance = Phaser.Math.distanceSq(localplayer.x, localplayer.y, workbench.workbench.x + workbench.sprite.width / 2, workbench.workbench.y + workbench.sprite.height / 2);
+
+          if(candidateComponents.distance < 15000)
+          {
+            workbench.touching = true;
+            workbench.text.visible = true;
+          }
+          else
+          {
+            workbench.touching = false;
+            workbench.text.visible = false;
+          }
+        }
         
         /*$.each(components, function(key, value){
           Phaser.Math.distanceSq(localplayer.x, localplayer.y, value.centerX, value.centerY);
@@ -426,9 +447,29 @@
         });
       });
 
+      var workbenchTitle = game.add.text(sprite.width / 2, -10, "Your Workbench!");
+      formatText(workbenchTitle, true);
+      workbenchTitle.anchor.setTo(0.5);
+      workbench.workbench.add(workbenchTitle);
+      
+      var workbenchText = game.add.text(sprite.width / 2, sprite.height + 11, "Press e to add part to your computer");
+      formatText(workbenchText, true);
+      workbenchText.anchor.setTo(0.5);
+      workbenchText.visible = false;
+      workbench.workbench.add(workbenchText);
+      workbench.text = workbenchText;
+
+      var workbenchStatus = game.add.text(sprite.width / 2, sprite.height + 30, "Your already have that component!");
+      formatText(workbenchStatus, true);
+      workbenchStatus.anchor.setTo(0.5);
+      workbenchStatus.visible = false;
+      workbench.workbench.add(workbenchStatus);
+      workbench.status = workbenchStatus;
+
       $.when(users, components).done(function(v1, v2){
         joinLoaded();
       });
+
       
     }
 
@@ -476,7 +517,8 @@
         lastTouchedComponent = undefined;
         player.holding = components[data];
 
-        $("#indicator-" + components[data].name).removeClass("list-group-item-danger").addClass("list-group-item-warning");
+        if(!foundComponents[components[data].name])
+          $("#indicator-" + components[data].name).removeClass("list-group-item-danger").addClass("list-group-item-warning");
 
         player.status.setText("Holding " + components[data].name + " (e to drop)");
         components[data].component.destroy();
@@ -494,6 +536,10 @@
         spawnComponent(data.component.id, data.component.x, data.component.y, data.component.component);
       });
 
+      socket.on('component let go', function(data){
+        users[data].status.setText("");
+      });
+
       chatenabled = true;
     }
 
@@ -505,19 +551,45 @@
       }
       else if(player.holding)
       {
-        socket.emit('drop', {
-          id: player.holding.id,
-          component: player.holding.name,
-          x: player.player.x,
-          y: player.player.y
-        });
+        if(workbench.touching && !foundComponents[player.holding.name])
+        {
+          foundComponents[player.holding.name] = true;
+          $("#indicator-" + player.holding.name).removeClass("list-group-item-warning").addClass("list-group-item-success");
 
-        spawnComponent(player.holding.id, player.player.x, player.player.y, player.holding.name);
+          socket.emit('let go');
 
-        $("#indicator-" + player.holding.name).removeClass("list-group-item-warning").addClass("list-group-item-danger");
+          player.status.setText("");
+          player.holding = undefined; 
+        }
+        else if(workbench.touching && foundComponents[player.holding.name])
+        {
+          workbench.status.visible = true;
+      
+          if(workbench.statusTimer)
+            clearTimeout(workbench.statusTimer);
 
-        player.status.setText("");
-        player.holding = undefined;
+          workbench.statusTimer = setTimeout(function() {
+            workbench.status.visible = false;
+          }, 5000);
+        }
+        else
+        {
+          socket.emit('drop', {
+            id: player.holding.id,
+            component: player.holding.name,
+            x: player.player.x,
+            y: player.player.y
+          });
+
+          spawnComponent(player.holding.id, player.player.x, player.player.y, player.holding.name);
+
+          if(!foundComponents[player.holding.name])
+            $("#indicator-" + player.holding.name).removeClass("list-group-item-warning").addClass("list-group-item-danger");
+
+          player.status.setText("");
+          player.holding = undefined; 
+        }
+        
       }
     }
 
@@ -530,6 +602,7 @@
     var users = {};
     var components = {};
     var style = { font: "14px Arial", fill: "#ff0044", align: "center" };
+    var foundComponents = {};
 
   </script>
 </body>

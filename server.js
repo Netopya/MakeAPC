@@ -115,4 +115,8 @@ io.on('connection', function (socket) {
 
     socket.broadcast.emit('component dropped', {component: data, player: socket.id});
   });
+
+  socket.on('let go', function() {
+    socket.broadcast.emit('component let go', socket.id);
+  });
 });
