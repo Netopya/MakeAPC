@@ -447,19 +447,19 @@
         });
       });
 
-      var workbenchTitle = game.add.text(sprite.width / 2, -10, "Your Workbench!");
+      var workbenchTitle = game.add.text(workbench.sprite.width / 2, -10, "Your Workbench!");
       formatText(workbenchTitle, true);
       workbenchTitle.anchor.setTo(0.5);
       workbench.workbench.add(workbenchTitle);
       
-      var workbenchText = game.add.text(sprite.width / 2, sprite.height + 11, "Press e to add part to your computer");
+      var workbenchText = game.add.text(workbench.sprite.width / 2, workbench.sprite.height + 11, "Press e to add part to your computer");
       formatText(workbenchText, true);
       workbenchText.anchor.setTo(0.5);
       workbenchText.visible = false;
       workbench.workbench.add(workbenchText);
       workbench.text = workbenchText;
 
-      var workbenchStatus = game.add.text(sprite.width / 2, sprite.height + 30, "Your already have that component!");
+      var workbenchStatus = game.add.text(workbench.sprite.width / 2, workbench.sprite.height + 30, "Your already have that component!");
       formatText(workbenchStatus, true);
       workbenchStatus.anchor.setTo(0.5);
       workbenchStatus.visible = false;
