@@ -5,6 +5,8 @@
 
   <title>Make A PC! The Game!</title>
   
+  <link rel="stylesheet" href="stylesheet.css">
+
   <!-- JQuery 3.2.1 -->
   <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 
@@ -145,6 +147,27 @@
   </div><!-- /.modal -->
 
   <div id="game-container">
+    <div class="score-container">
+      <div class="panel panel-default">
+        <div class="panel-heading">Retrieved Components:</div>
+        <ul class="list-group">
+          <li id="inticator-case" class="list-group-item list-group-item-danger">Computer Case</li>
+          <li id="inticator-motherboard" class="list-group-item list-group-item-danger">Motherboard</li>
+          <li id="inticator-cpu" class="list-group-item list-group-item-danger">CPU</li>
+          <li id="inticator-ram" class="list-group-item list-group-item-danger">RAM</li>
+          <li id="inticator-gpu" class="list-group-item list-group-item-danger">GPU</li>
+          <li id="inticator-psu" class="list-group-item list-group-item-danger">Power supply</li>
+          <li id="inticator-ssd" class="list-group-item list-group-item-danger">SSD</li>
+        </ul>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">Top Scores:</div>
+        <ul class="list-group">
+          <li class="list-group-item">Joe<span class="badge">4</span></li>
+          <li class="list-group-item">Bob<span class="badge">2</span></li>
+        </ul>
+      </div>
+    </div>
     <div id="phaser-canvas">
     </div>
     <div class="container">
@@ -186,6 +209,7 @@
     var player;
     var cursors;
     var lastTouchedComponent;
+    var workbench;
 
     var junk = ['pap', 'creep', 'lmg', 'pika1', 'pika2', 'poke', 'rd', 'mario', 'obama', 'lamp', 'banana', 'turnip', 'cone', 'computer'];
 
@@ -221,6 +245,8 @@
       game.load.image('ram', 'images/components/ram.jpg');
       game.load.image('ssd', 'images/components/ssd.jpg');
 
+      game.load.image('workbench', 'images/workbench.jpg');
+
       // Load the Google WebFont Loader script
       game.load.script('webfont', 'https://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
     }    
@@ -230,6 +256,7 @@
 
       cursors = game.input.keyboard.createCursorKeys();
 
+      workbench = game.add.sprite(0,0, 'workbench');
       
       for(var j = 0; j < 5; j++)  
       {
@@ -448,6 +475,9 @@
       socket.on('pickup accept', function(data) {
         lastTouchedComponent = undefined;
         player.holding = components[data];
+
+        $("#indicator-" + components[data].name).removeClass("list-group-item-danger").addClass("list-group-item-warning");
+
         player.status.setText("Holding " + components[data].name + " (e to drop)");
         components[data].component.destroy();
         delete components[data];
@@ -483,6 +513,8 @@
         });
 
         spawnComponent(player.holding.id, player.player.x, player.player.y, player.holding.name);
+
+        $("#indicator-" + player.holding.name).removeClass("list-group-item-warning").addClass("list-group-item-danger");
 
         player.status.setText("");
         player.holding = undefined;
