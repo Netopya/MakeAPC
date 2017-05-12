@@ -72,7 +72,7 @@ function scoreArraysEqual(a, b) {
 io.on('connection', function (socket) {
 
   socket.on('join', function(data){
-    socket.username = data.username;
+    socket.username = data.username.substring(0, 100);
     socket.character = data.character;
     socket.x = data.x;
     socket.y = data.y;

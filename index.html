@@ -146,6 +146,31 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 
+  <div id="instructions_modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1>Instructions</h1>
+        </div>
+        <div class="modal-body">
+          <h4>Conttrols</h4>
+          <p>Move with the arrow keys <kbd><kbd>&larr;</kbd><kbd>&uarr;</kbd><kbd>&darr;</kbd><kbd>&rarr;</kbd></kbd></p>
+          <p>Chat with <kbd>enter</kbd></p>
+          <p>Interact with <kbd>e</kbd></p>
+          <h4>The Game</h4>
+          <p>The goal of Make A PC is to make a pc! Pick up components and bring them to your workbench</p>
+          <h5>Bring computer parts here:</h5>
+          <div class="centered_image">
+            <img src="images/workbenchexample.PNG" class="img-thumbnail">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" data-dismiss="modal">Got It!</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
   <div id="game-container">
     <div class="score-container">
       <div class="panel panel-default">
@@ -358,14 +383,10 @@
             player.status.visible = true;
           }
         }
-        
-        /*$.each(components, function(key, value){
-          Phaser.Math.distanceSq(localplayer.x, localplayer.y, value.centerX, value.centerY);
-        });*/
     }
 
     function render() {
-      game.debug.cameraInfo(game.camera, 32, 32);
+      //game.debug.cameraInfo(game.camera, 32, 32);
     }
 
     function setPlayerMessege(player, messege)
@@ -518,7 +539,7 @@
         if(!user)
           return;
 
-        console.log(data.socket.username + ' left the game!');
+        console.log(user.socket.username + ' left the game!');
 
         user.player.destroy();
         delete users[data.id];

@@ -11,3 +11,7 @@
 #local-score-display {
     float:right;
 }
+
+.centered_image {
+    text-align: center;
+}
