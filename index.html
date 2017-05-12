@@ -336,20 +336,23 @@
 
           workbench.touching = false;
           workbench.text.visible = false;
+          player.status.visible = true;
         }
         else
         {
           var distance = Phaser.Math.distanceSq(localplayer.x, localplayer.y, workbench.workbench.x + workbench.sprite.width / 2, workbench.workbench.y + workbench.sprite.height / 2);
 
-          if(distance < 15000)
+          if(distance < 25000)
           {
             workbench.touching = true;
             workbench.text.visible = true;
+            player.status.visible = false;
           }
           else
           {
             workbench.touching = false;
             workbench.text.visible = false;
+            player.status.visible = true;
           }
         }
         
@@ -433,7 +436,7 @@
 
       socket = io();
 
-      var users = $.getJSON("/users/", function(data){
+      var usersPromise = $.getJSON("/users/", function(data){
         $.each(data, function(index, value){
 
           if(!value.username)
@@ -447,7 +450,7 @@
         });
       });
 
-      var components = $.getJSON("/components/", function(data){
+      var componentsPromise = $.getJSON("/components/", function(data){
         $.each(data, function(index, value){
           spawnComponent(value.id, value.x, value.y, value.component);
         });
@@ -472,7 +475,7 @@
       workbench.workbench.add(workbenchStatus);
       workbench.status = workbenchStatus;
 
-      $.when(users, components).done(function(v1, v2){
+      $.when(usersPromise, componentsPromise).done(function(v1, v2){
         joinLoaded();
       });
 
@@ -510,6 +513,8 @@
 
         if(!user)
           return;
+
+        console.log(data.username + ' left the game!');
 
         user.player.destroy();
         delete users[data.id];
