@@ -52,6 +52,8 @@
         
         username = cleanInput(name);
 
+        showInstructions();
+
         join();
       });
 
@@ -105,12 +107,15 @@
       $("#chat-box").val("");
     }
 
-
+    function showInstructions()
+    {
+      $("#instructions_modal").modal();
+    }
   </script>
 </head>
 
 <body>
-  <h1>Make A PC! <small>The Game!</small></h1>
+  <h1>Make A PC! <small>The Game! <a href="#" onclick="showInstructions()">Instructions</a></small></h1>
 
   <div id="intro_modal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -153,12 +158,12 @@
           <h1>Instructions</h1>
         </div>
         <div class="modal-body">
-          <h4>Conttrols</h4>
-          <p>Move with the arrow keys <kbd><kbd>&larr;</kbd><kbd>&uarr;</kbd><kbd>&darr;</kbd><kbd>&rarr;</kbd></kbd></p>
+          <h3>Controls</h3>
+          <p>Move with the arrow keys <kbd><kbd>&larr;</kbd> <kbd>&uarr;</kbd> <kbd>&darr;</kbd> <kbd>&rarr;</kbd></kbd></p>
           <p>Chat with <kbd>enter</kbd></p>
           <p>Interact with <kbd>e</kbd></p>
-          <h4>The Game</h4>
-          <p>The goal of Make A PC is to make a pc! Pick up components and bring them to your workbench</p>
+          <h3>The Game</h3>
+          <p>The goal of Make A PC is to make a PC! Pick up components and bring them to your workbench.</p>
           <h5>Bring computer parts here:</h5>
           <div class="centered_image">
             <img src="images/workbenchexample.PNG" class="img-thumbnail">
