@@ -84,6 +84,10 @@
                 }
               }
           }
+          else if(e.which == 69)
+          {
+            tryPickup();
+          }
       });
     });
 
@@ -212,7 +216,7 @@
       game.load.image('case', 'images/components/case.jpg');
       game.load.image('cpu', 'images/components/cpu.jpg');
       game.load.image('gpu', 'images/components/gpu.jpg');
-      game.load.image('mother', 'images/components/mother.jpg');
+      game.load.image('motherboard', 'images/components/mother.jpg');
       game.load.image('psu', 'images/components/psu.jpg');
       game.load.image('ram', 'images/components/ram.jpg');
       game.load.image('ssd', 'images/components/ssd.jpg');
@@ -270,34 +274,38 @@
           socket.emit('move', {x: localplayer.x, y: localplayer.y});
         }
 
-        var candidateComponents = Object.values(components).map(function(component){
-          return {
-            component: component, 
-            distance: Phaser.Math.distanceSq(localplayer.x, localplayer.y, component.component.x + component.sprite.width / 2, component.component.y + component.sprite.height / 2)
-          };
-        }).reduce(function(last, current){
-          return last.distance < current.distance ? last : current;
-        }, {distance: Infinity});
-
-        if(candidateComponents.distance > 15000)
-          candidateComponents = undefined;
-
-
-        if(lastTouchedComponent && (!candidateComponents || lastTouchedComponent != candidateComponents.component))
+        if(!player.holding)
         {
-          lastTouchedComponent.text.visible = false;
-          lastTouchedComponent = undefined;
-        }
+          var candidateComponents = Object.values(components).map(function(component){
+            return {
+              component: component, 
+              distance: Phaser.Math.distanceSq(localplayer.x, localplayer.y, component.component.x + component.sprite.width / 2, component.component.y + component.sprite.height / 2)
+            };
+          }).reduce(function(last, current){
+            return last.distance < current.distance ? last : current;
+          }, {distance: Infinity});
 
-        if(candidateComponents)
-        {
-          candidateComponents.component.text.visible = true; 
-          lastTouchedComponent = candidateComponents.component;
+          if(candidateComponents.distance > 15000)
+            candidateComponents = undefined;
+
+
+          if(lastTouchedComponent && (!candidateComponents || lastTouchedComponent != candidateComponents.component))
+          {
+            lastTouchedComponent.text.visible = false;
+            lastTouchedComponent = undefined;
+          }
+
+          if(candidateComponents)
+          {
+            candidateComponents.component.text.visible = true; 
+            lastTouchedComponent = candidateComponents.component;
+          }
         }
         
-        $.each(components, function(key, value){
+        
+        /*$.each(components, function(key, value){
           Phaser.Math.distanceSq(localplayer.x, localplayer.y, value.centerX, value.centerY);
-        });
+        });*/
     }
 
     function render() {
@@ -330,13 +338,18 @@
       text.anchor.setTo(0.5);
       userplayer.add(text);
 
+      var status = game.add.text(sprite.width / 2, sprite.height + 16, "");
+      formatText(status, local);
+      status.anchor.setTo(0.5);
+      userplayer.add(status);
+
       var chat = game.add.text(sprite.width / 2, -10, "");
       formatText(chat, local);
       chat.anchor.setTo(0.5);
       userplayer.add(chat);
 
 
-      return {player: userplayer, chat: chat};
+      return {player: userplayer, chat: chat, status: status};
     }
 
     function formatText(text, local)
@@ -357,13 +370,13 @@
       var sprite = game.add.sprite(0, 0, component);
       componentGroup.add(sprite);
 
-      var text = game.add.text(sprite.width / 2, -10, "Press e to pickup");
+      var text = game.add.text(sprite.width / 2, -10, "Press e to pickup " + component);
       formatText(text, true);
       text.anchor.setTo(0.5);
       text.visible = false;
       componentGroup.add(text);
 
-      components[id] = {component: componentGroup, text: text, sprite: sprite};
+      components[id] = {id: id, component: componentGroup, text: text, sprite: sprite, name: component};
     }
 
     function join() {      
@@ -428,7 +441,28 @@
         setPlayerMessege(users[data.id], data.messege);
       });
 
+      socket.on('pickup accept', function(data) {
+        lastTouchedComponent = undefined;
+        player.holding = components[data];
+        player.status.setText("Holding " + components[data].name);
+        components[data].component.destroy();
+        delete components[data];
+      });
+
+      socket.on('component picked up', function(data) {
+        components[data].component.destroy();
+        delete components[data];
+      });
+
       chatenabled = true;
+    }
+
+    function tryPickup()
+    {
+      if(lastTouchedComponent && !player.holding)
+      {
+        socket.emit('pickup', lastTouchedComponent.id);
+      }
     }
 
     function cleanInput (input) {

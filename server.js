@@ -3,8 +3,8 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-var components = ['case', 'cpu', 'gpu', 'mother', 'psu', 'ram', 'ssd'];
-var spawnedComponents = [];
+var components = ['case', 'cpu', 'gpu', 'motherboard', 'psu', 'ram', 'ssd'];
+var spawnedComponents = {};
 var componentNum = 0;
 
 function getRandomInt(min, max) {
@@ -15,12 +15,13 @@ for(var j = 0; j < 5; j++)
 {
   for(var i = 0; i < components.length; i++)
   {
-    spawnedComponents.push({
-      id: componentNum++, 
+    var id = (componentNum++).toString();
+    spawnedComponents[id] = {
+      id: id, 
       component: components[i], 
       x: getRandomInt(-2000, 2000),
       y: getRandomInt(-2000, 2000)
-    });
+    };
   }
 }
 
@@ -47,7 +48,9 @@ app.get('/users/', function(req, res){
 });
 
 app.get('/components/', function(req, res){
-  res.json(spawnedComponents);
+  res.json(Object.keys(spawnedComponents).map(function(key){
+    return spawnedComponents[key];
+  }));;
 });
 
 http.listen(8080, function(){
@@ -96,5 +99,14 @@ io.on('connection', function (socket) {
       id: socket.id,
       messege: chat
     });
+  });
+
+  socket.on('pickup', function(data) {
+    if(spawnedComponents[data])
+    {
+      delete spawnedComponents[data];
+      socket.emit('pickup accept', data);
+      socket.broadcast.emit('component picked up', data);
+    }
   });
 });
