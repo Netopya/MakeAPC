@@ -151,13 +151,13 @@
       <div class="panel panel-default">
         <div class="panel-heading">Retrieved Components:</div>
         <ul class="list-group">
-          <li id="inticator-case" class="list-group-item list-group-item-danger">Computer Case</li>
-          <li id="inticator-motherboard" class="list-group-item list-group-item-danger">Motherboard</li>
-          <li id="inticator-cpu" class="list-group-item list-group-item-danger">CPU</li>
-          <li id="inticator-ram" class="list-group-item list-group-item-danger">RAM</li>
-          <li id="inticator-gpu" class="list-group-item list-group-item-danger">GPU</li>
-          <li id="inticator-psu" class="list-group-item list-group-item-danger">Power supply</li>
-          <li id="inticator-ssd" class="list-group-item list-group-item-danger">SSD</li>
+          <li id="indicator-case" class="list-group-item list-group-item-danger">Computer Case</li>
+          <li id="indicator-motherboard" class="list-group-item list-group-item-danger">Motherboard</li>
+          <li id="indicator-cpu" class="list-group-item list-group-item-danger">CPU</li>
+          <li id="indicator-ram" class="list-group-item list-group-item-danger">RAM</li>
+          <li id="indicator-gpu" class="list-group-item list-group-item-danger">GPU</li>
+          <li id="indicator-psu" class="list-group-item list-group-item-danger">Power supply</li>
+          <li id="indicator-ssd" class="list-group-item list-group-item-danger">SSD</li>
         </ul>
       </div>
       <div class="panel panel-default">
@@ -254,10 +254,8 @@
     function create() {
       game.world.setBounds(-2000, -2000, 4000, 4000);
 
-      cursors = game.input.keyboard.createCursorKeys();
+      cursors = game.input.keyboard.createCursorKeys();      
 
-      workbench = game.add.sprite(0,0, 'workbench');
-      
       for(var j = 0; j < 5; j++)  
       {
         for(var i = 0; i < junk.length; i++)
@@ -265,6 +263,8 @@
           game.add.sprite(game.world.randomX, game.world.randomY, junk[i]);
         }
       }
+
+      workbench = game.add.sprite(0,0, 'workbench');
     }
 
     function update() {
