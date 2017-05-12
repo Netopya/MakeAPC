@@ -150,7 +150,7 @@
     <div class="score-container">
       <div class="panel panel-default">
         <div class="panel-heading">Retrieved Components:</div>
-        <ul class="list-group">
+        <ul id="component-indicators" class="list-group">
           <li id="indicator-case" class="list-group-item list-group-item-danger">Computer Case</li>
           <li id="indicator-motherboard" class="list-group-item list-group-item-danger">Motherboard</li>
           <li id="indicator-cpu" class="list-group-item list-group-item-danger">CPU</li>
@@ -159,6 +159,9 @@
           <li id="indicator-psu" class="list-group-item list-group-item-danger">Power supply</li>
           <li id="indicator-ssd" class="list-group-item list-group-item-danger">SSD</li>
         </ul>
+      </div>
+      <div class="panel panel-primary">
+        <div class="panel-heading">Your score<span id="local-score-display" class="badge">0</span></div>
       </div>
       <div class="panel panel-default">
         <div class="panel-heading">Top Scores:</div>
@@ -485,6 +488,7 @@
     function joinLoaded()
     {
       player = createPlayer(username, selectedCharacter, game.width / 2, game.height / 2, true);
+      player.score = 0;
 
       socket.emit('join', {username: username, character: selectedCharacter, x: player.player.x, y: player.player.y});
 
@@ -514,7 +518,7 @@
         if(!user)
           return;
 
-        console.log(data.username + ' left the game!');
+        console.log(data.socket.username + ' left the game!');
 
         user.player.destroy();
         delete users[data.id];
@@ -570,7 +574,15 @@
           socket.emit('let go');
 
           player.status.setText("");
-          player.holding = undefined; 
+          player.holding = undefined;
+
+          if(Object.keys(foundComponents).length >= 7)
+          {
+            player.score++;
+            $("#local-score-display").text(player.score);
+            foundComponents = {};
+            $("#component-indicators li").removeClass("list-group-item-success").addClass("list-group-item-danger");
+          }
         }
         else if(workbench.touching && foundComponents[player.holding.name])
         {

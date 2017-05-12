@@ -65,6 +65,7 @@ io.on('connection', function (socket) {
     socket.character = data.character;
     socket.x = data.x;
     socket.y = data.y;
+    socket.score = 0;
 
     socket.broadcast.emit('user joined', {
       id: socket.id,
