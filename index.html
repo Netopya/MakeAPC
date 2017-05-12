@@ -84,7 +84,7 @@
                 }
               }
           }
-          else if(e.which == 69 || e.which == 101)
+          else if((e.which == 69 || e.which == 101) && !$("#chat-box").is(":focus") && chatenabled)
           {
             tryPickup();
           }
@@ -108,7 +108,7 @@
 </head>
 
 <body>
-  <h1>Hello World</h1>
+  <h1>Make A PC! <small>The Game!</small></h1>
 
   <div id="intro_modal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -338,7 +338,7 @@
       text.anchor.setTo(0.5);
       userplayer.add(text);
 
-      var status = game.add.text(sprite.width / 2, sprite.height + 16, "");
+      var status = game.add.text(sprite.width / 2, sprite.height + 21, "");
       formatText(status, local);
       status.anchor.setTo(0.5);
       userplayer.add(status);
@@ -454,6 +454,10 @@
         delete components[data];
       });
 
+      socket.on('spawn component', function(data){
+        spawnComponent(data.id, data.x, data.y, data.component);
+      });
+
       chatenabled = true;
     }
 
@@ -462,6 +466,20 @@
       if(lastTouchedComponent && !player.holding)
       {
         socket.emit('pickup', lastTouchedComponent.id);
+      }
+      else if(player.holding)
+      {
+        socket.emit('drop', {
+          id: player.holding.id,
+          component: player.holding.name,
+          x: player.player.x,
+          y: player.player.y
+        });
+
+        spawnComponent(player.holding.id, player.player.x, player.player.y, player.holding.name);
+
+        player.status.setText("");
+        player.holding = undefined;
       }
     }
 

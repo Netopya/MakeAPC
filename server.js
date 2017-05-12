@@ -109,4 +109,10 @@ io.on('connection', function (socket) {
       socket.broadcast.emit('component picked up', data);
     }
   });
+
+  socket.on('drop', function(data){
+    spawnedComponents[data.id] = data;
+
+    socket.broadcast.emit('spawn component', data);
+  });
 });
