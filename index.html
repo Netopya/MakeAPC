@@ -265,7 +265,9 @@
       }
 
       var workbenchGroup = game.add.group();
-      var workbenchSprite = game.add.sprite(game.width / 2, game.height / 2, 'workbench');
+      workbenchGroup.x = game.width / 2;
+      workbenchGroup.y = game.height / 2;
+      var workbenchSprite = game.add.sprite(0, 0, 'workbench');
       workbenchGroup.add(workbenchSprite);
 
       workbench = {workbench: workbenchGroup, sprite: workbenchSprite};
