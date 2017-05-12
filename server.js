@@ -6,6 +6,7 @@ var io = require('socket.io')(http);
 var components = ['case', 'cpu', 'gpu', 'motherboard', 'psu', 'ram', 'ssd'];
 var spawnedComponents = {};
 var componentNum = 0;
+var lastScore;
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -57,6 +58,16 @@ http.listen(8080, function(){
   console.log('listening on *:8080');
 });
 
+function scoreArraysEqual(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length != b.length) return false;
+
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i].username !== b[i].username || a[i].score !== b[i].score) return false;
+  }
+  return true;
+}
 
 io.on('connection', function (socket) {
 
@@ -74,6 +85,23 @@ io.on('connection', function (socket) {
       x: socket.x,
       y: socket.y
     });
+
+    var usersockets = io.sockets.sockets;
+
+    if(Object.keys(usersockets).length < 6)
+    {
+      var userScores = Object.keys(usersockets).map(function(key){
+        return {
+          username: usersockets[key].username, 
+          score: usersockets[key].score
+        };
+      }).sort(function(a, b){
+        return b.score - a.score;
+      });
+
+      io.sockets.emit('score updated', userScores);
+      lastScore = userScores;
+    }
   });
 
   socket.on('move', function(data){
@@ -119,5 +147,27 @@ io.on('connection', function (socket) {
 
   socket.on('let go', function() {
     socket.broadcast.emit('component let go', socket.id);
+  });
+
+  socket.on('build', function(data) {
+    socket.score = data;
+
+    var usersockets = io.sockets.sockets;
+
+    var userScores = Object.keys(usersockets).map(function(key){
+      return {
+        username: usersockets[key].username, 
+        score: usersockets[key].score
+      };
+    }).sort(function(a, b){
+      return b.score - a.score;
+    }).slice(0,5);
+
+    if(!scoreArraysEqual(lastScore, userScores))
+    {
+      io.sockets.emit('score updated', userScores);
+      lastScore = userScores;
+    }   
+
   });
 });

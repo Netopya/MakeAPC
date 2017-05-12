@@ -165,7 +165,7 @@
       </div>
       <div class="panel panel-default">
         <div class="panel-heading">Top Scores:</div>
-        <ul class="list-group">
+        <ul id="user-scores" class="list-group">
           <li class="list-group-item">Joe<span class="badge">4</span></li>
           <li class="list-group-item">Bob<span class="badge">2</span></li>
         </ul>
@@ -345,7 +345,7 @@
         {
           var distance = Phaser.Math.distanceSq(localplayer.x, localplayer.y, workbench.workbench.x + workbench.sprite.width / 2, workbench.workbench.y + workbench.sprite.height / 2);
 
-          if(distance < 25000)
+          if(distance < 40000)
           {
             workbench.touching = true;
             workbench.text.visible = true;
@@ -555,6 +555,13 @@
         users[data].status.setText("");
       });
 
+      socket.on('score updated', function(data){
+        $("#user-scores").empty();
+        $.each(data, function(index, value){
+          $("#user-scores").append('<li class="list-group-item">' + value.username +'<span class="badge">' + value.score + '</span></li>');
+        });
+      });
+
       chatenabled = true;
     }
 
@@ -579,6 +586,9 @@
           if(Object.keys(foundComponents).length >= 7)
           {
             player.score++;
+
+            socket.emit('build', player.score);
+
             $("#local-score-display").text(player.score);
             foundComponents = {};
             $("#component-indicators li").removeClass("list-group-item-success").addClass("list-group-item-danger");
