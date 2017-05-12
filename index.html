@@ -433,6 +433,10 @@
 
       socket.on('user left', function(data){
         var user = users[data.id];
+
+        if(!user)
+          return;
+
         user.player.destroy();
         delete users[data.id];
       });
