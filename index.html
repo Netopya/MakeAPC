@@ -435,6 +435,10 @@
 
       var users = $.getJSON("/users/", function(data){
         $.each(data, function(index, value){
+
+          if(!value.username)
+            return;
+
           var userplayer = createPlayer(value.username, value.character, value.x, value.y, false);
           userplayer.socket = value;
           users[value.id] = userplayer;
