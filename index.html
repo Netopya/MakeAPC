@@ -339,7 +339,7 @@
         {
           var distance = Phaser.Math.distanceSq(localplayer.x, localplayer.y, workbench.workbench.x + workbench.sprite.width / 2, workbench.workbench.y + workbench.sprite.height / 2);
 
-          if(candidateComponents.distance < 15000)
+          if(distance < 15000)
           {
             workbench.touching = true;
             workbench.text.visible = true;
