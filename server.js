@@ -29,11 +29,11 @@ for(var j = 0; j < 5; j++)
 var spawner = setInterval(function() {
   if(Object.keys(spawnedComponents).length < 35)
   {
-    var componentNum = getRandomInt(0, components.length - 1);
+    var componentVal = getRandomInt(0, components.length - 1);
     var id = (componentNum++).toString();
     spawnedComponents[id] = {
       id: id, 
-      component: components[componentNum], 
+      component: components[componentVal], 
       x: getRandomInt(-2000, 2000),
       y: getRandomInt(-2000, 2000)
     };
