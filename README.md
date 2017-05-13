@@ -17,3 +17,5 @@ The goal of Make A PC is to make a PC! Pick from one of serveral Linus Tech Tips
 - Move with the arrow keys ← ↑ ↓ →
 - Chat with enter
 - Interact with e
+
+I apologize in advance for the lack of Star Wars references
