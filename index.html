@@ -131,7 +131,7 @@
               <span id="usernameHelp" class="help-block"></span>
             </div>
             <div class="form-group">
-              <label for="characterSelect">Character</label>
+              <label for="characterSelect">Select a Character</label>
               <select id="characterSelect" class="form-control">
                 <option value="linus">Linus</option>
                 <option value="luke">Luke</option>
@@ -575,6 +575,10 @@
       socket.on('component dropped', function(data){
         users[data.player].status.setText("");
         spawnComponent(data.component.id, data.component.x, data.component.y, data.component.component);
+      });
+
+      socket.on('spawn component', function(data){
+        spawnComponent(data.id, data.x, data.y, data.component);
       });
 
       socket.on('component let go', function(data){

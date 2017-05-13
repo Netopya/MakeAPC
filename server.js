@@ -26,6 +26,21 @@ for(var j = 0; j < 5; j++)
   }
 }
 
+var spawner = setInterval(function() {
+  if(Object.keys(spawnedComponents).length < 35)
+  {
+    var componentNum = getRandomInt(0, components.length - 1);
+    var id = (componentNum++).toString();
+    spawnedComponents[id] = {
+      id: id, 
+      component: components[componentNum], 
+      x: getRandomInt(-2000, 2000),
+      y: getRandomInt(-2000, 2000)
+    };
+
+    io.sockets.emit('spawn component', spawnedComponents[id]);
+  }
+}, 1000);
 
 app.use(express.static(__dirname + '/public'));
 
