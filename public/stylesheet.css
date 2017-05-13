@@ -15,3 +15,8 @@
 .centered_image {
     text-align: center;
 }
+
+#chat-container {
+    position:absolute;
+    bottom:6px;
+}

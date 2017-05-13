@@ -20,103 +20,15 @@
   <!-- socket.io -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.slim.js" integrity="sha256-xgFhgi3lzveFZBzfkbog/oj1SIOjyveAZKnUVwr35Q8=" crossorigin="anonymous"></script>
 
-  <script>
+  <script src="main.js"></script>
+  <script src="game.js"></script>
 
-    var chatenabled = false;
-
-    (function($){
-      $.isBlank = function(obj){
-        return(!obj || $.trim(obj) === "");
-      };
-    })(jQuery);
-
-    var selectedCharacter = "linus";
-
-    $(function(){
-
-      // Show the into modal
-      $("#intro_modal").modal().on('hide.bs.modal', function(e) {
-
-        var name = $("#usernameInput").val();
-
-        if($.isBlank(name))
-        {
-          e.preventDefault();
-          e.stopImmediatePropagation();
-
-          $("#usernameGroup").addClass("has-error");
-          $("#usernameHelp").text("You must provide a username");
-
-          return false;
-        }
-        
-        username = cleanInput(name);
-
-        showInstructions();
-
-        join();
-      });
-
-      var characterMap = {
-        "linus" : "linus.png",
-        "luke" : "luke.png",
-        "edzel" : "edzel.png",
-        "brandon" : "brandon.png"
-      };
-
-      $("#characterSelect").change(function() {
-        selectedCharacter = $(this).val();
-        $("#characterPreview").attr("src", "images/" + characterMap[selectedCharacter]);
-      });
-
-      $("#chat-send").click(function(e) {
-        sendChatMessege();
-      });
-
-      $(document).keypress(function(e) {
-          if(e.which == 13) {
-              if(chatenabled)
-              {
-                if($("#chat-box").is(":focus"))
-                {
-                  sendChatMessege();
-                  $("#chat-box").blur();
-                }
-                else
-                {
-                  $("#chat-box").focus();
-                }
-              }
-          }
-          else if((e.which == 69 || e.which == 101) && !$("#chat-box").is(":focus") && chatenabled)
-          {
-            tryPickup();
-          }
-      });
-    });
-
-    function sendChatMessege()
-    {
-      var chat = cleanInput($("#chat-box").val().substring(0, 100));
-
-      if($.isBlank(chat))
-        return;
-
-      socket.emit('chat', chat);
-      setPlayerMessege(player, chat);
-      $("#chat-box").val("");
-    }
-
-    function showInstructions()
-    {
-      $("#instructions_modal").modal();
-    }
-  </script>
 </head>
 
 <body>
   <h1>Make A PC! <small>The Game!</small> <button class="btn btn-primary" onclick="showInstructions()">Instructions</button></h1>
 
+  <!-- Intro and sign up modal -->
   <div id="intro_modal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -151,6 +63,7 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 
+  <!-- Instructions modal -->
   <div id="instructions_modal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -177,7 +90,11 @@
   </div><!-- /.modal -->
 
   <div id="game-container">
+
+    <!-- Side panel container -->
     <div class="score-container">
+
+      <!-- Component list conatiner -->
       <div class="panel panel-default">
         <div class="panel-heading">Retrieved Components:</div>
         <ul id="component-indicators" class="list-group">
@@ -190,9 +107,13 @@
           <li id="indicator-ssd" class="list-group-item list-group-item-danger">SSD</li>
         </ul>
       </div>
+
+      <!-- Local user score panel -->
       <div class="panel panel-primary">
         <div class="panel-heading">Your score<span id="local-score-display" class="badge">0</span></div>
       </div>
+
+      <!-- Top scores container -->
       <div class="panel panel-default">
         <div class="panel-heading">Top Scores:</div>
         <ul id="user-scores" class="list-group">
@@ -201,12 +122,16 @@
         </ul>
       </div>
     </div>
+
+    <!-- Main game container -->
     <div id="phaser-canvas">
     </div>
+
+    <!-- Chatbox container -->
     <div class="container">
       <div class="row">
         <div class="col-sm-12">
-          <div id="chat-container" style="position:absolute;bottom:6px;">
+          <div id="chat-container">
             <div class="input-group">
               <input type="text" class="form-control" id="chat-box" placeholder="Press Enter to Chat">
               <span class="input-group-btn">
@@ -218,455 +143,5 @@
       </div>
     </div>
   </div>
-
-  <script>
-
-    
-    var game = new Phaser.Game(document.body.clientWidth, 600, Phaser.CANVAS, 'phaser-canvas', { preload: preload, create: create, update: update, render : render });
-
-    //  The Google WebFont Loader will look for this object, so create it before loading the script.
-    WebFontConfig = {
-
-        //  'active' means all requested fonts have finished loading
-        //  We set a 1 second delay before calling 'createText'.
-        //  For some reason if we don't the browser cannot render the text the first time it's created.
-        //active: function() { game.time.events.add(Phaser.Timer.SECOND, createText, this); },
-
-        //  The Google Fonts we want to load (specify as many as you like in the array)
-        google: {
-          families: ['Revalia', 'Ubuntu Mono']
-        }
-
-    };
-
-    var player;
-    var cursors;
-    var lastTouchedComponent;
-    var workbench;
-
-    var junk = ['pap', 'creep', 'lmg', 'pika1', 'pika2', 'poke', 'rd', 'mario', 'obama', 'lamp', 'banana', 'turnip', 'cone', 'computer'];
-
-    function preload() {
-      game.stage.backgroundColor = '#ffff99';
-
-      game.load.image('linus', 'images/linus.png');
-      game.load.image('luke', 'images/luke.png');
-      game.load.image('edzel', 'images/edzel.png');
-      game.load.image('brandon', 'images/brandon.png');
-
-
-      game.load.image('pap', 'images/junk/6bca32b7cc73414.png');
-      game.load.image('creep', 'images/junk/20110203083336Creeper_2631349.jpg');
-      game.load.image('lmg', 'images/junk/lmg.png');
-      game.load.image('pika1', 'images/junk/pikachu_pixel_art_by_hiyorie-da0emtc.jpg');
-      game.load.image('pika2', 'images/junk/Pikachu-minecraft-pixel-art.jpg');
-      game.load.image('poke', 'images/junk/piq_10145_400x400.png');
-      game.load.image('rd', 'images/junk/piq_37211_400x400.png');
-      game.load.image('mario', 'images/junk/piq_45958_400x400.png');
-      game.load.image('obama', 'images/junk/piq_95620_400x400.png');
-      game.load.image('lamp', 'images/junk/piq_360280_400x400.png');
-      game.load.image('banana', 'images/junk/pixel-art-banana_1987406.jpg');
-      game.load.image('turnip', 'images/junk/pixel-art-turnip_1987413.jpg');
-      game.load.image('cone', 'images/junk/Road-Cone-icon.png');
-      game.load.image('computer', 'images/junk/SwanComputer_Assembled.png');
-
-      game.load.image('case', 'images/components/case.jpg');
-      game.load.image('cpu', 'images/components/cpu.jpg');
-      game.load.image('gpu', 'images/components/gpu.jpg');
-      game.load.image('motherboard', 'images/components/mother.jpg');
-      game.load.image('psu', 'images/components/psu.jpg');
-      game.load.image('ram', 'images/components/ram.jpg');
-      game.load.image('ssd', 'images/components/ssd.jpg');
-
-      game.load.image('workbench', 'images/workbench.jpg');
-
-      // Load the Google WebFont Loader script
-      game.load.script('webfont', 'https://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
-    }    
-
-    function create() {
-      game.world.setBounds(-2000, -2000, 4000, 4000);
-
-      cursors = game.input.keyboard.createCursorKeys();      
-
-      for(var j = 0; j < 5; j++)  
-      {
-        for(var i = 0; i < junk.length; i++)
-        {
-          game.add.sprite(game.world.randomX, game.world.randomY, junk[i]);
-        }
-      }
-
-      var workbenchGroup = game.add.group();
-      workbenchGroup.x = game.width / 2;
-      workbenchGroup.y = game.height / 2;
-      var workbenchSprite = game.add.sprite(0, 0, 'workbench');
-      workbenchGroup.add(workbenchSprite);
-
-      workbench = {workbench: workbenchGroup, sprite: workbenchSprite};
-    }
-
-    function update() {
-
-        if(!player)
-          return;
-
-        var localplayer = player.player;
-
-        if (cursors.up.isDown)
-        {
-            game.camera.y -= 4;
-            localplayer.y -= localplayer.worldPosition.y > game.height / 2 ? 8 : 4;
-        }
-        else if (cursors.down.isDown)
-        {
-            game.camera.y += 4;
-            localplayer.y += localplayer.worldPosition.y < game.height / 2 ? 8 : 4;
-        }
-
-        if (cursors.left.isDown)
-        {
-            game.camera.x -= 4;
-            localplayer.x -= localplayer.worldPosition.x > game.width / 2 ? 8 : 4;
-        }
-        else if (cursors.right.isDown)
-        {
-            game.camera.x += 4;
-            localplayer.x += localplayer.worldPosition.x < game.width / 2 ? 8 : 4;
-        }
-
-        if(cursors.up.isDown || cursors.down.isDown || cursors.left.isDown || cursors.right.isDown)
-        {
-          socket.emit('move', {x: localplayer.x, y: localplayer.y});
-        }
-
-        if(!player.holding)
-        {
-          var candidateComponents = Object.values(components).map(function(component){
-            return {
-              component: component, 
-              distance: Phaser.Math.distanceSq(localplayer.x, localplayer.y, component.component.x + component.sprite.width / 2, component.component.y + component.sprite.height / 2)
-            };
-          }).reduce(function(last, current){
-            return last.distance < current.distance ? last : current;
-          }, {distance: Infinity});
-
-          if(candidateComponents.distance > 15000)
-            candidateComponents = undefined;
-
-
-          if(lastTouchedComponent && (!candidateComponents || lastTouchedComponent != candidateComponents.component))
-          {
-            lastTouchedComponent.text.visible = false;
-            lastTouchedComponent = undefined;
-          }
-
-          if(candidateComponents)
-          {
-            candidateComponents.component.text.visible = true; 
-            lastTouchedComponent = candidateComponents.component;
-          }
-
-          workbench.touching = false;
-          workbench.text.visible = false;
-          player.status.visible = true;
-        }
-        else
-        {
-          var distance = Phaser.Math.distanceSq(localplayer.x, localplayer.y, workbench.workbench.x + workbench.sprite.width / 2, workbench.workbench.y + workbench.sprite.height / 2);
-
-          if(distance < 40000)
-          {
-            workbench.touching = true;
-            workbench.text.visible = true;
-            player.status.visible = false;
-          }
-          else
-          {
-            workbench.touching = false;
-            workbench.text.visible = false;
-            player.status.visible = true;
-          }
-        }
-    }
-
-    function render() {
-      //game.debug.cameraInfo(game.camera, 32, 32);
-    }
-
-    function setPlayerMessege(player, messege)
-    {
-      player.chat.setText(messege);
-      
-      if(player.chattimer)
-        clearTimeout(player.chattimer);
-
-      player.chattimer = setTimeout(function() {
-        player.chat.setText("");
-      }, 5000);
-    }
-
-    function createPlayer(name, character, x, y, local)
-    {
-      var userplayer = game.add.group();
-      userplayer.x = x;
-      userplayer.y = y;
-      var sprite = game.add.sprite(0, 0, character);
-      userplayer.add(sprite);
-
-      var text = game.add.text(sprite.width / 2, sprite.height + 11, name);
-      formatText(text, local);
-
-      text.anchor.setTo(0.5);
-      userplayer.add(text);
-
-      var status = game.add.text(sprite.width / 2, sprite.height + 30, "");
-      formatText(status, local);
-      status.anchor.setTo(0.5);
-      userplayer.add(status);
-
-      var chat = game.add.text(sprite.width / 2, -10, "");
-      formatText(chat, local);
-      chat.anchor.setTo(0.5);
-      userplayer.add(chat);
-
-
-      return {player: userplayer, chat: chat, status: status};
-    }
-
-    function formatText(text, local)
-    {
-      text.align = 'center';
-      text.font = 'Ubuntu Mono';
-      text.fontSize = 16;
-      text.fill = local ? '#0000ff' : '#ff0000';
-      text.stroke = '#000000'
-      text.strokeThickness = 2;
-    }
-
-    function spawnComponent(id, x, y, component)
-    {
-      var componentGroup = game.add.group();
-      componentGroup.x = x;
-      componentGroup.y = y;
-      var sprite = game.add.sprite(0, 0, component);
-      componentGroup.add(sprite);
-
-      var text = game.add.text(sprite.width / 2, -10, "Press e to pickup " + component);
-      formatText(text, true);
-      text.anchor.setTo(0.5);
-      text.visible = false;
-      componentGroup.add(text);
-
-      components[id] = {id: id, component: componentGroup, text: text, sprite: sprite, name: component};
-    }
-
-    function join() {      
-
-      socket = io();
-
-      var usersPromise = $.getJSON("/users/", function(data){
-        $.each(data, function(index, value){
-
-          if(!value.username)
-            return;
-
-          var userplayer = createPlayer(value.username, value.character, value.x, value.y, false);
-          userplayer.socket = value;
-          users[value.id] = userplayer;
-
-          console.log(value.username + ' is in the game!');
-        });
-      });
-
-      var componentsPromise = $.getJSON("/components/", function(data){
-        $.each(data, function(index, value){
-          spawnComponent(value.id, value.x, value.y, value.component);
-        });
-      });
-
-      var workbenchTitle = game.add.text(workbench.sprite.width / 2, -10, "Your Workbench!");
-      formatText(workbenchTitle, true);
-      workbenchTitle.anchor.setTo(0.5);
-      workbench.workbench.add(workbenchTitle);
-      
-      var workbenchText = game.add.text(workbench.sprite.width / 2, workbench.sprite.height + 11, "Press e to add part to your computer");
-      formatText(workbenchText, true);
-      workbenchText.anchor.setTo(0.5);
-      workbenchText.visible = false;
-      workbench.workbench.add(workbenchText);
-      workbench.text = workbenchText;
-
-      var workbenchStatus = game.add.text(workbench.sprite.width / 2, workbench.sprite.height + 30, "Your already have that component!");
-      formatText(workbenchStatus, true);
-      workbenchStatus.anchor.setTo(0.5);
-      workbenchStatus.visible = false;
-      workbench.workbench.add(workbenchStatus);
-      workbench.status = workbenchStatus;
-
-      $.when(usersPromise, componentsPromise).done(function(v1, v2){
-        joinLoaded();
-      });
-
-      
-    }
-
-    function joinLoaded()
-    {
-      player = createPlayer(username, selectedCharacter, game.width / 2, game.height / 2, true);
-      player.score = 0;
-
-      socket.emit('join', {username: username, character: selectedCharacter, x: player.player.x, y: player.player.y});
-
-      socket.on('user joined', function(data){
-        var userplayer = createPlayer(data.username, data.character, data.x, data.y, false);
-        userplayer.socket = data;
-        users[data.id] = userplayer;
-
-        console.log(data.username + ' joined the game!');
-      });
-
-      socket.on('user moved', function(data){
-        var userplayer = users[data.id];
-
-        // If the user could not be found, return for now
-        if(!userplayer)
-          return;
-
-        userplayer.player.x = data.x;
-        userplayer.player.y = data.y;
-
-      });
-
-      socket.on('user left', function(data){
-        var user = users[data.id];
-
-        if(!user)
-          return;
-
-        console.log(user.socket.username + ' left the game!');
-
-        user.player.destroy();
-        delete users[data.id];
-      });
-
-      socket.on('user messege', function(data){
-        setPlayerMessege(users[data.id], data.messege);
-      });
-
-      socket.on('pickup accept', function(data) {
-        lastTouchedComponent = undefined;
-        player.holding = components[data];
-
-        if(!foundComponents[components[data].name])
-          $("#indicator-" + components[data].name).removeClass("list-group-item-danger").addClass("list-group-item-warning");
-
-        player.status.setText("Holding " + components[data].name + " (e to drop)");
-        components[data].component.destroy();
-        delete components[data];
-      });
-
-      socket.on('component picked up', function(data) {
-        users[data.player].status.setText("Holding " + components[data.id].name);
-        components[data.id].component.destroy();
-        delete components[data.id];
-      });
-
-      socket.on('component dropped', function(data){
-        users[data.player].status.setText("");
-        spawnComponent(data.component.id, data.component.x, data.component.y, data.component.component);
-      });
-
-      socket.on('spawn component', function(data){
-        spawnComponent(data.id, data.x, data.y, data.component);
-      });
-
-      socket.on('component let go', function(data){
-        users[data].status.setText("");
-      });
-
-      socket.on('score updated', function(data){
-        $("#user-scores").empty();
-        $.each(data, function(index, value){
-          $("#user-scores").append('<li class="list-group-item">' + value.username +'<span class="badge">' + value.score + '</span></li>');
-        });
-      });
-
-      chatenabled = true;
-    }
-
-    function tryPickup()
-    {
-      if(lastTouchedComponent && !player.holding)
-      {
-        socket.emit('pickup', lastTouchedComponent.id);
-      }
-      else if(player.holding)
-      {
-        if(workbench.touching && !foundComponents[player.holding.name])
-        {
-          foundComponents[player.holding.name] = true;
-          $("#indicator-" + player.holding.name).removeClass("list-group-item-warning").addClass("list-group-item-success");
-
-          socket.emit('let go');
-
-          player.status.setText("");
-          player.holding = undefined;
-
-          if(Object.keys(foundComponents).length >= 7)
-          {
-            player.score++;
-
-            socket.emit('build', player.score);
-
-            $("#local-score-display").text(player.score);
-            foundComponents = {};
-            $("#component-indicators li").removeClass("list-group-item-success").addClass("list-group-item-danger");
-          }
-        }
-        else if(workbench.touching && foundComponents[player.holding.name])
-        {
-          workbench.status.visible = true;
-      
-          if(workbench.statusTimer)
-            clearTimeout(workbench.statusTimer);
-
-          workbench.statusTimer = setTimeout(function() {
-            workbench.status.visible = false;
-          }, 5000);
-        }
-        else
-        {
-          socket.emit('drop', {
-            id: player.holding.id,
-            component: player.holding.name,
-            x: player.player.x,
-            y: player.player.y
-          });
-
-          spawnComponent(player.holding.id, player.player.x, player.player.y, player.holding.name);
-
-          if(!foundComponents[player.holding.name])
-            $("#indicator-" + player.holding.name).removeClass("list-group-item-warning").addClass("list-group-item-danger");
-
-          player.status.setText("");
-          player.holding = undefined; 
-        }
-        
-      }
-    }
-
-    function cleanInput (input) {
-      return $('<div/>').text(input).text();
-    }
-
-    var socket;
-    var username;
-    var users = {};
-    var components = {};
-    var style = { font: "14px Arial", fill: "#ff0044", align: "center" };
-    var foundComponents = {};
-
-  </script>
 </body>
 </html>
